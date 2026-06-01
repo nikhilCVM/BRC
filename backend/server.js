@@ -12,12 +12,11 @@ const app = express();
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: true,
     credentials: true
   })
 );
 app.use(express.json());
-app.use("/api/members", memberRoutes);
 
 app.get("/", (req, res) => {
   res.json({ message: "Member Bio Data System API is running" });

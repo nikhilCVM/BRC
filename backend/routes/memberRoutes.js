@@ -22,7 +22,7 @@ router.post("/", authMiddleware, adminMiddleware, async (req, res) => {
   }
 });
 
-router.get("/", authMiddleware, async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const members = await Member.find();
 
@@ -35,7 +35,7 @@ router.get("/", authMiddleware, async (req, res) => {
   }
 });
 
-router.get("/search", authMiddleware, async (req, res) => {
+router.get("/search", async (req, res) => {
   try {
     const { q } = req.query;
 
@@ -127,7 +127,7 @@ router.post(
   }
 );
 
-router.get("/:id", authMiddleware, async (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
     const member = await Member.findById(req.params.id);
 
