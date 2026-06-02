@@ -48,8 +48,9 @@ const MemberList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
+  const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
-  const isAdmin = role === "admin";
+  const isAdmin = Boolean(token) && role === "admin";
 
   useEffect(() => {
     const fetchMembers = async () => {

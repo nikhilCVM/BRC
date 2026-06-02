@@ -1,6 +1,10 @@
 import { NavLink, Outlet } from "react-router-dom";
 
 const AppLayout = () => {
+  const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role");
+  const isAdmin = Boolean(token) && role === "admin";
+
   const linkClass = ({ isActive }) =>
     `rounded-md px-3 py-2 text-sm font-medium ${
       isActive
@@ -23,9 +27,11 @@ const AppLayout = () => {
             <NavLink to="/" className={linkClass}>
               Members
             </NavLink>
-            <NavLink to="/members/add" className={linkClass}>
-              Add Member
-            </NavLink>
+            {isAdmin && (
+              <NavLink to="/members/add" className={linkClass}>
+                Add Member
+              </NavLink>
+            )}
             <NavLink to="/login" className={linkClass}>
               Login
             </NavLink>
