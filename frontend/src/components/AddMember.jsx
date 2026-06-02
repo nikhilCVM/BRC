@@ -7,18 +7,20 @@ const AddMember = () => {
     name: "",
     flatNo: "",
     phone: "",
-    dob: ""
+    dob: "",
+    isDeceased: false,
+    deceasedDate: ""
   });
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
   const handleChange = (event) => {
-    const { name, value } = event.target;
+    const { name, type, checked, value } = event.target;
 
     setFormData((prevData) => ({
       ...prevData,
-      [name]: value
+      [name]: type === "checkbox" ? checked : value
     }));
   };
 
@@ -34,7 +36,10 @@ const AddMember = () => {
           "Content-Type": "application/json",
           ...getAuthHeaders()
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          ...formData,
+          deceasedDate: formData.isDeceased ? formData.deceasedDate : ""
+        })
       });
 
       if (!response.ok) {
@@ -48,7 +53,9 @@ const AddMember = () => {
         name: "",
         flatNo: "",
         phone: "",
-        dob: ""
+        dob: "",
+        isDeceased: false,
+        deceasedDate: ""
       });
       setMessage("Member added successfully");
     } catch (error) {
@@ -101,6 +108,27 @@ const AddMember = () => {
           className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
           required
         />
+
+        <label className="flex items-center gap-3 text-sm font-medium text-gray-700">
+          <input
+            type="checkbox"
+            name="isDeceased"
+            checked={formData.isDeceased}
+            onChange={handleChange}
+            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+          />
+          Deceased
+        </label>
+
+        {formData.isDeceased && (
+          <input
+            type="date"
+            name="deceasedDate"
+            value={formData.deceasedDate}
+            onChange={handleChange}
+            className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+          />
+        )}
 
         <button
           type="submit"

@@ -4,12 +4,12 @@ import axios from "axios";
 import API_URL from "../utils/api";
 import { getAuthHeaders } from "../utils/authHeaders";
 
-const formatDob = (dob) => {
-  if (!dob) {
+const formatDate = (dateValue) => {
+  if (!dateValue) {
     return "";
   }
 
-  const date = new Date(dob);
+  const date = new Date(dateValue);
 
   if (Number.isNaN(date.getTime())) {
     return "";
@@ -66,11 +66,7 @@ const MemberList = () => {
         });
         setMembers(response.data);
       } catch (err) {
-        setError(
-          err.response?.status === 401
-            ? "Please login to view members"
-            : "Failed to fetch members"
-        );
+        setError("Failed to fetch members");
       } finally {
         setLoading(false);
       }
@@ -102,12 +98,140 @@ const MemberList = () => {
     }
   };
 
+  const renderMemberTable = (title, sectionMembers, showDeceasedDate = false) => {
+    const sortedMembers = [...sectionMembers].sort(sortMembersByFlatNo);
+    let currentBlock = "";
+    const columnCount = showDeceasedDate ? 7 : 6;
+
+    return (
+      <section className="mt-8">
+        <h3 className="mb-4 text-xl font-semibold text-gray-900">{title}</h3>
+
+        <div className="overflow-x-auto">
+          <table className="min-w-full border border-gray-200 bg-white">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="border-b px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                  S.No
+                </th>
+                <th className="border-b px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                  Name
+                </th>
+                <th className="border-b px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                  Flat No
+                </th>
+                <th className="border-b px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                  Phone
+                </th>
+                <th className="border-b px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                  DOB
+                </th>
+                {showDeceasedDate && (
+                  <th className="border-b px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                    Deceased Date
+                  </th>
+                )}
+                <th className="border-b px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {sortedMembers.map((member, index) => {
+                const block = getBlockLetter(member.flatNo);
+                const shouldShowBlockHeading = block !== currentBlock;
+                currentBlock = block;
+
+                return (
+                  <Fragment key={member._id}>
+                    {shouldShowBlockHeading && (
+                      <tr>
+                        <td
+                          colSpan={columnCount}
+                          className="bg-gray-200 px-4 py-3 text-sm font-semibold text-gray-900"
+                        >
+                          {block} Block
+                        </td>
+                      </tr>
+                    )}
+
+                    <tr className="hover:bg-gray-50">
+                      <td className="border-b px-4 py-3 text-sm text-gray-800">
+                        {index + 1}
+                      </td>
+                      <td className="border-b px-4 py-3 text-sm text-gray-800">
+                        {member.name}
+                      </td>
+                      <td className="border-b px-4 py-3 text-sm text-gray-800">
+                        {member.flatNo || "-"}
+                      </td>
+                      <td className="border-b px-4 py-3 text-sm text-gray-800">
+                        {member.phone}
+                      </td>
+                      <td className="border-b px-4 py-3 text-sm text-gray-800">
+                        {formatDate(member.dob) || "-"}
+                      </td>
+                      {showDeceasedDate && (
+                        <td className="border-b px-4 py-3 text-sm text-gray-800">
+                          {formatDate(member.deceasedDate) || "-"}
+                        </td>
+                      )}
+                      <td className="border-b px-4 py-3 text-sm">
+                        <div className="flex gap-3">
+                          <Link
+                            to={`/members/${member._id}`}
+                            className="font-medium text-blue-600 hover:text-blue-800"
+                          >
+                            View
+                          </Link>
+                          {isAdmin && (
+                            <>
+                              <Link
+                                to={`/members/${member._id}/edit`}
+                                className="font-medium text-emerald-600 hover:text-emerald-800"
+                              >
+                                Edit
+                              </Link>
+                              <button
+                                type="button"
+                                onClick={() => handleDelete(member._id)}
+                                className="font-medium text-red-600 hover:text-red-800"
+                              >
+                                Delete
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  </Fragment>
+                );
+              })}
+
+              {!loading && sortedMembers.length === 0 && (
+                <tr>
+                  <td
+                    colSpan={columnCount}
+                    className="border-b px-4 py-6 text-center text-sm text-gray-600"
+                  >
+                    No members found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    );
+  };
+
   if (error) {
     return <p className="p-6 text-red-600">{error}</p>;
   }
 
-  const sortedMembers = [...members].sort(sortMembersByFlatNo);
-  let currentBlock = "";
+  const activeMembers = members.filter((member) => !member.isDeceased);
+  const deceasedMembers = members.filter((member) => member.isDeceased);
 
   return (
     <div className="p-6">
@@ -134,111 +258,8 @@ const MemberList = () => {
 
       {loading && <p className="mb-4 text-sm text-gray-600">Loading members...</p>}
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full border border-gray-200 bg-white">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="border-b px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                S.No
-              </th>
-              <th className="border-b px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                Name
-              </th>
-              <th className="border-b px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                Flat No
-              </th>
-              <th className="border-b px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                Phone
-              </th>
-              <th className="border-b px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                DOB
-              </th>
-              <th className="border-b px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                Actions
-              </th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {sortedMembers.map((member, index) => {
-              const block = getBlockLetter(member.flatNo);
-              const shouldShowBlockHeading = block !== currentBlock;
-              currentBlock = block;
-
-              return (
-                <Fragment key={member._id}>
-                  {shouldShowBlockHeading && (
-                    <tr key={`${block}-block`}>
-                      <td
-                        colSpan="6"
-                        className="bg-gray-200 px-4 py-3 text-sm font-semibold text-gray-900"
-                      >
-                        {block} Block
-                      </td>
-                    </tr>
-                  )}
-
-                  <tr className="hover:bg-gray-50">
-                    <td className="border-b px-4 py-3 text-sm text-gray-800">
-                      {index + 1}
-                    </td>
-                    <td className="border-b px-4 py-3 text-sm text-gray-800">
-                      {member.name}
-                    </td>
-                    <td className="border-b px-4 py-3 text-sm text-gray-800">
-                      {member.flatNo || "-"}
-                    </td>
-                    <td className="border-b px-4 py-3 text-sm text-gray-800">
-                      {member.phone}
-                    </td>
-                    <td className="border-b px-4 py-3 text-sm text-gray-800">
-                      {formatDob(member.dob) || "-"}
-                    </td>
-                    <td className="border-b px-4 py-3 text-sm">
-                      <div className="flex gap-3">
-                        <Link
-                          to={`/members/${member._id}`}
-                          className="font-medium text-blue-600 hover:text-blue-800"
-                        >
-                          View
-                        </Link>
-                        {isAdmin && (
-                          <>
-                            <Link
-                              to={`/members/${member._id}/edit`}
-                              className="font-medium text-emerald-600 hover:text-emerald-800"
-                            >
-                              Edit
-                            </Link>
-                            <button
-                              type="button"
-                              onClick={() => handleDelete(member._id)}
-                              className="font-medium text-red-600 hover:text-red-800"
-                            >
-                              Delete
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                </Fragment>
-              );
-            })}
-
-            {!loading && sortedMembers.length === 0 && (
-              <tr>
-                <td
-                  colSpan="6"
-                  className="border-b px-4 py-6 text-center text-sm text-gray-600"
-                >
-                  No members found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      {renderMemberTable("Active Members", activeMembers)}
+      {renderMemberTable("Deceased Members", deceasedMembers, true)}
     </div>
   );
 };

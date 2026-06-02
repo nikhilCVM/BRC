@@ -47,6 +47,13 @@ const memberSchema = new mongoose.Schema(
     dob: {
       type: Date
     },
+    isDeceased: {
+      type: Boolean,
+      default: false
+    },
+    deceasedDate: {
+      type: Date
+    },
     age: {
       type: Number,
       min: 0

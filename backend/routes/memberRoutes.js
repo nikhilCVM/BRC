@@ -8,6 +8,16 @@ const adminMiddleware = require("../middleware/adminMiddleware");
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
+const parseBoolean = (value) => {
+  if (typeof value === "boolean") {
+    return value;
+  }
+
+  const normalizedValue = String(value || "").trim().toLowerCase();
+
+  return ["true", "yes", "y", "1"].includes(normalizedValue);
+};
+
 router.post("/", authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const memberData = req.body;
@@ -101,6 +111,17 @@ router.post(
         flatNo: row.flatNo || row.FlatNo || row["Flat No"] || row["Flat no"],
         phone: row.phone || row.Phone,
         dob: row.dob || row.DOB || row.Dob,
+        isDeceased: parseBoolean(
+          row.isDeceased ||
+          row.IsDeceased ||
+          row["Is Deceased"] ||
+            row["is deceased"]
+        ),
+        deceasedDate:
+          row.deceasedDate ||
+          row.DeceasedDate ||
+          row["Deceased Date"] ||
+          row["deceased date"],
         address: row.address || row.Address,
         bloodGroup:
           row.bloodGroup || row.BloodGroup || row["Blood Group"] || row["Blood group"],

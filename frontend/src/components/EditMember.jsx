@@ -28,7 +28,9 @@ const EditMember = () => {
     address: "",
     bloodGroup: "",
     occupation: "",
-    spouseName: ""
+    spouseName: "",
+    isDeceased: false,
+    deceasedDate: ""
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -50,7 +52,9 @@ const EditMember = () => {
           address: member.address || "",
           bloodGroup: member.bloodGroup || "",
           occupation: member.occupation || "",
-          spouseName: member.spouseName || ""
+          spouseName: member.spouseName || "",
+          isDeceased: Boolean(member.isDeceased),
+          deceasedDate: formatDateInput(member.deceasedDate)
         });
       } catch (error) {
         setMessage("Failed to fetch member");
@@ -63,11 +67,11 @@ const EditMember = () => {
   }, [id]);
 
   const handleChange = (event) => {
-    const { name, value } = event.target;
+    const { name, type, checked, value } = event.target;
 
     setFormData((prevData) => ({
       ...prevData,
-      [name]: value
+      [name]: type === "checkbox" ? checked : value
     }));
   };
 
@@ -77,9 +81,16 @@ const EditMember = () => {
     setMessage("");
 
     try {
-      await axios.put(`${API_URL}/api/members/${id}`, formData, {
-        headers: getAuthHeaders()
-      });
+      await axios.put(
+        `${API_URL}/api/members/${id}`,
+        {
+          ...formData,
+          deceasedDate: formData.isDeceased ? formData.deceasedDate : ""
+        },
+        {
+          headers: getAuthHeaders()
+        }
+      );
       setMessage("Member updated successfully");
     } catch (error) {
       setMessage("Failed to update member");
@@ -169,6 +180,27 @@ const EditMember = () => {
           placeholder="Spouse Name"
           className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
         />
+
+        <label className="flex items-center gap-3 text-sm font-medium text-gray-700">
+          <input
+            type="checkbox"
+            name="isDeceased"
+            checked={formData.isDeceased}
+            onChange={handleChange}
+            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+          />
+          Deceased
+        </label>
+
+        {formData.isDeceased && (
+          <input
+            type="date"
+            name="deceasedDate"
+            value={formData.deceasedDate}
+            onChange={handleChange}
+            className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+          />
+        )}
 
         <button
           type="submit"
