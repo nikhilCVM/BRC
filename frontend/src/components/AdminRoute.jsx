@@ -1,10 +1,10 @@
 import { Navigate, Outlet } from "react-router-dom";
+import { getAuthState } from "../utils/auth";
 
 const AdminRoute = () => {
-  const token = localStorage.getItem("token");
-  const role = localStorage.getItem("role");
+  const { isAdmin } = getAuthState();
 
-  if (!token || role !== "admin") {
+  if (!isAdmin) {
     return <Navigate to="/members" replace />;
   }
 

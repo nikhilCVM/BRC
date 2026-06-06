@@ -1,5 +1,7 @@
+import { getAuthState } from "./auth";
+
 export const getAuthHeaders = () => {
-  const token = localStorage.getItem("token");
+  const { token } = getAuthState();
 
   return token
     ? {

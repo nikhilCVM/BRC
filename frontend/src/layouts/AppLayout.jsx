@@ -1,9 +1,13 @@
 import { NavLink, Outlet } from "react-router-dom";
+import { getAuthState, logout } from "../utils/auth";
 
 const AppLayout = () => {
-  const token = localStorage.getItem("token");
-  const role = localStorage.getItem("role");
-  const isAdmin = Boolean(token) && role === "admin";
+  const { isLoggedIn, isAdmin } = getAuthState();
+
+  const handleLogout = () => {
+    logout();
+    window.location.href = "/members";
+  };
 
   const linkClass = ({ isActive }) =>
     `rounded-md px-3 py-2 text-sm font-medium ${
@@ -32,9 +36,19 @@ const AppLayout = () => {
                 Add Member
               </NavLink>
             )}
-            <NavLink to="/login" className={linkClass}>
-              Login
-            </NavLink>
+            {isLoggedIn ? (
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+              >
+                Logout
+              </button>
+            ) : (
+              <NavLink to="/login" className={linkClass}>
+                Login
+              </NavLink>
+            )}
           </nav>
         </div>
       </header>

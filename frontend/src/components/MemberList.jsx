@@ -2,6 +2,7 @@ import { Fragment, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import API_URL from "../utils/api";
+import { getAuthState } from "../utils/auth";
 import { getAuthHeaders } from "../utils/authHeaders";
 
 const formatDate = (dateValue) => {
@@ -48,9 +49,7 @@ const MemberList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
-  const token = localStorage.getItem("token");
-  const role = localStorage.getItem("role");
-  const isAdmin = Boolean(token) && role === "admin";
+  const { isAdmin } = getAuthState();
 
   useEffect(() => {
     const fetchMembers = async () => {
@@ -99,7 +98,12 @@ const MemberList = () => {
     }
   };
 
-  const renderMemberTable = (title, sectionMembers, showDeceasedDate = false) => {
+  const renderMemberTable = (
+    title,
+    sectionMembers,
+    showDeceasedDate = false,
+    groupByBlock = true
+  ) => {
     const sortedMembers = [...sectionMembers].sort(sortMembersByFlatNo);
     let currentBlock = "";
     const columnCount = showDeceasedDate ? 7 : 6;
@@ -141,8 +145,9 @@ const MemberList = () => {
             <tbody>
               {sortedMembers.map((member, index) => {
                 const block = getBlockLetter(member.flatNo);
-                const shouldShowBlockHeading = block !== currentBlock;
-                currentBlock = block;
+                const shouldShowBlockHeading =
+                  groupByBlock && block !== currentBlock;
+                currentBlock = groupByBlock ? block : currentBlock;
 
                 return (
                   <Fragment key={member._id}>
@@ -260,7 +265,7 @@ const MemberList = () => {
       {loading && <p className="mb-4 text-sm text-gray-600">Loading members...</p>}
 
       {renderMemberTable("Active Members", activeMembers)}
-      {renderMemberTable("Deceased Members", deceasedMembers, true)}
+      {renderMemberTable("Deceased Members", deceasedMembers, true, false)}
     </div>
   );
 };
