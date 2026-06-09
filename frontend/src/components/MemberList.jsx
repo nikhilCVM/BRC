@@ -44,6 +44,26 @@ const sortMembersByFlatNo = (memberA, memberB) => {
   return getFlatNumber(memberA.flatNo) - getFlatNumber(memberB.flatNo);
 };
 
+const getDateTime = (dateValue) => {
+  if (!dateValue) {
+    return Number.MAX_SAFE_INTEGER;
+  }
+
+  const date = new Date(dateValue);
+  return Number.isNaN(date.getTime()) ? Number.MAX_SAFE_INTEGER : date.getTime();
+};
+
+const sortMembersByDeceasedDate = (memberA, memberB) => {
+  const dateDifference =
+    getDateTime(memberA.deceasedDate) - getDateTime(memberB.deceasedDate);
+
+  if (dateDifference !== 0) {
+    return dateDifference;
+  }
+
+  return sortMembersByFlatNo(memberA, memberB);
+};
+
 const MemberList = () => {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -102,9 +122,10 @@ const MemberList = () => {
     title,
     sectionMembers,
     showDeceasedDate = false,
-    groupByBlock = true
+    groupByBlock = true,
+    sortMembers = sortMembersByFlatNo
   ) => {
-    const sortedMembers = [...sectionMembers].sort(sortMembersByFlatNo);
+    const sortedMembers = [...sectionMembers].sort(sortMembers);
     let currentBlock = "";
     const columnCount = showDeceasedDate ? 7 : 6;
 
@@ -265,7 +286,13 @@ const MemberList = () => {
       {loading && <p className="mb-4 text-sm text-gray-600">Loading members...</p>}
 
       {renderMemberTable("Active Members", activeMembers)}
-      {renderMemberTable("Deceased Members", deceasedMembers, true, false)}
+      {renderMemberTable(
+        "Deceased Members",
+        deceasedMembers,
+        true,
+        false,
+        sortMembersByDeceasedDate
+      )}
     </div>
   );
 };
