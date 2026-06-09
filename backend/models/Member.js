@@ -4,19 +4,13 @@ const familyMemberSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      trim: true
+      trim: true,
+      default: ""
     },
-    relation: {
+    contact: {
       type: String,
-      trim: true
-    },
-    phone: {
-      type: String,
-      trim: true
-    },
-    address: {
-      type: String,
-      trim: true
+      trim: true,
+      default: ""
     }
   },
   {
@@ -33,33 +27,39 @@ const memberSchema = new mongoose.Schema(
     },
     flatNo: {
       type: String,
+      required: true,
+      default: "",
       trim: true
     },
     address: {
       type: String,
-      trim: true
+      trim: true,
+      default: ""
     },
     phone: {
       type: String,
-      required: true,
-      trim: true
+      trim: true,
+      default: ""
     },
     dob: {
-      type: Date
+      type: Date,
+      default: null
     },
     isDeceased: {
       type: Boolean,
       default: false
     },
     deceasedDate: {
-      type: Date
+      type: Date,
+      default: null
     },
     age: {
       type: Number,
       min: 0
     },
     marriageDate: {
-      type: Date
+      type: Date,
+      default: null
     },
     spouseName: {
       type: String,
@@ -68,23 +68,57 @@ const memberSchema = new mongoose.Schema(
     },
     bloodGroup: {
       type: String,
-      trim: true
+      trim: true,
+      default: ""
     },
     emergencyContactPerson: {
       type: String,
-      trim: true
+      trim: true,
+      default: ""
     },
     emergencyPhone: {
       type: String,
-      trim: true
+      trim: true,
+      default: ""
+    },
+    occupationDetails: {
+      type: String,
+      trim: true,
+      default: ""
+    },
+    retiredWhenWhere: {
+      type: String,
+      trim: true,
+      default: ""
+    },
+    positionsAndAchievements: {
+      type: String,
+      trim: true,
+      default: ""
+    },
+    countriesVisited: {
+      type: String,
+      trim: true,
+      default: ""
+    },
+    additionalInformation: {
+      type: String,
+      trim: true,
+      default: ""
+    },
+    sonsDaughters: {
+      type: [familyMemberSchema],
+      default: []
     },
     occupation: {
       type: String,
-      trim: true
+      trim: true,
+      default: ""
     },
     retiredDetails: {
       type: String,
-      trim: true
+      trim: true,
+      default: ""
     },
     familyMembers: {
       type: [familyMemberSchema],

@@ -18,20 +18,30 @@ const formatDateInput = (dateValue) => {
   return date.toISOString().split("T")[0];
 };
 
+const getInitialFormData = () => ({
+  name: "",
+  flatNo: "",
+  phone: "",
+  dob: "",
+  bloodGroup: "",
+  address: "",
+  marriageDate: "",
+  spouseName: "",
+  emergencyContactPerson: "",
+  emergencyPhone: "",
+  occupationDetails: "",
+  retiredWhenWhere: "",
+  positionsAndAchievements: "",
+  countriesVisited: "",
+  additionalInformation: "",
+  sonsDaughters: [],
+  isDeceased: false,
+  deceasedDate: ""
+});
+
 const EditMember = () => {
   const { id } = useParams();
-  const [formData, setFormData] = useState({
-    name: "",
-    flatNo: "",
-    phone: "",
-    dob: "",
-    address: "",
-    bloodGroup: "",
-    occupation: "",
-    spouseName: "",
-    isDeceased: false,
-    deceasedDate: ""
-  });
+  const [formData, setFormData] = useState(getInitialFormData);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -49,10 +59,20 @@ const EditMember = () => {
           flatNo: member.flatNo || "",
           phone: member.phone || "",
           dob: formatDateInput(member.dob),
-          address: member.address || "",
           bloodGroup: member.bloodGroup || "",
-          occupation: member.occupation || "",
+          address: member.address || "",
+          marriageDate: formatDateInput(member.marriageDate),
           spouseName: member.spouseName || "",
+          emergencyContactPerson: member.emergencyContactPerson || "",
+          emergencyPhone: member.emergencyPhone || "",
+          occupationDetails:
+            member.occupationDetails || member.occupation || "",
+          retiredWhenWhere:
+            member.retiredWhenWhere || member.retiredDetails || "",
+          positionsAndAchievements: member.positionsAndAchievements || "",
+          countriesVisited: member.countriesVisited || "",
+          additionalInformation: member.additionalInformation || "",
+          sonsDaughters: member.sonsDaughters || [],
           isDeceased: Boolean(member.isDeceased),
           deceasedDate: formatDateInput(member.deceasedDate)
         });
@@ -72,6 +92,31 @@ const EditMember = () => {
     setFormData((prevData) => ({
       ...prevData,
       [name]: type === "checkbox" ? checked : value
+    }));
+  };
+
+  const handleChildChange = (index, field, value) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      sonsDaughters: prevData.sonsDaughters.map((child, childIndex) =>
+        childIndex === index ? { ...child, [field]: value } : child
+      )
+    }));
+  };
+
+  const addChild = () => {
+    setFormData((prevData) => ({
+      ...prevData,
+      sonsDaughters: [...prevData.sonsDaughters, { name: "", contact: "" }]
+    }));
+  };
+
+  const removeChild = (index) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      sonsDaughters: prevData.sonsDaughters.filter(
+        (_, childIndex) => childIndex !== index
+      )
     }));
   };
 
@@ -125,6 +170,7 @@ const EditMember = () => {
           onChange={handleChange}
           placeholder="Flat No"
           className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+          required
         />
 
         <input
@@ -134,7 +180,6 @@ const EditMember = () => {
           onChange={handleChange}
           placeholder="Phone"
           className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
-          required
         />
 
         <input
@@ -165,21 +210,128 @@ const EditMember = () => {
 
         <input
           type="text"
-          name="occupation"
-          value={formData.occupation}
-          onChange={handleChange}
-          placeholder="Occupation"
-          className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
-        />
-
-        <input
-          type="text"
           name="spouseName"
           value={formData.spouseName}
           onChange={handleChange}
           placeholder="Spouse Name"
           className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
         />
+
+        <input
+          type="date"
+          name="marriageDate"
+          value={formData.marriageDate}
+          onChange={handleChange}
+          className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+        />
+
+        <input
+          type="text"
+          name="emergencyContactPerson"
+          value={formData.emergencyContactPerson}
+          onChange={handleChange}
+          placeholder="Emergency Contact Person"
+          className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+        />
+
+        <input
+          type="tel"
+          name="emergencyPhone"
+          value={formData.emergencyPhone}
+          onChange={handleChange}
+          placeholder="Emergency Phone"
+          className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+        />
+
+        <textarea
+          name="occupationDetails"
+          value={formData.occupationDetails}
+          onChange={handleChange}
+          placeholder="Occupation Details"
+          className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+          rows="3"
+        />
+
+        <textarea
+          name="retiredWhenWhere"
+          value={formData.retiredWhenWhere}
+          onChange={handleChange}
+          placeholder="Retired When/Where"
+          className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+          rows="3"
+        />
+
+        <textarea
+          name="positionsAndAchievements"
+          value={formData.positionsAndAchievements}
+          onChange={handleChange}
+          placeholder="Positions and Achievements"
+          className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+          rows="3"
+        />
+
+        <textarea
+          name="countriesVisited"
+          value={formData.countriesVisited}
+          onChange={handleChange}
+          placeholder="Countries Visited"
+          className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+          rows="3"
+        />
+
+        <textarea
+          name="additionalInformation"
+          value={formData.additionalInformation}
+          onChange={handleChange}
+          placeholder="Additional Information"
+          className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+          rows="3"
+        />
+
+        <div className="space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="text-sm font-semibold text-gray-800">
+              Sons / Daughters
+            </h3>
+            <button
+              type="button"
+              onClick={addChild}
+              className="rounded-md border border-gray-300 px-3 py-1 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              Add
+            </button>
+          </div>
+
+          {formData.sonsDaughters.map((child, index) => (
+            <div key={index} className="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
+              <input
+                type="text"
+                value={child.name}
+                onChange={(event) =>
+                  handleChildChange(index, "name", event.target.value)
+                }
+                placeholder="Name"
+                className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+              />
+              <input
+                type="text"
+                value={child.contact}
+                onChange={(event) =>
+                  handleChildChange(index, "contact", event.target.value)
+                }
+                placeholder="Contact"
+                className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+              />
+              <button
+                type="button"
+                onClick={() => removeChild(index)}
+                className="rounded-md border border-red-200 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+        </div>
 
         <label className="flex items-center gap-3 text-sm font-medium text-gray-700">
           <input

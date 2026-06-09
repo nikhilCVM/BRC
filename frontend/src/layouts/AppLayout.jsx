@@ -22,7 +22,7 @@ const AppLayout = () => {
         <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-xl font-semibold text-gray-900">
-              Member Bio Data System
+              BRC Siva Hills Senior Citizens
             </h1>
             <p className="text-sm text-gray-500">Manage member records</p>
           </div>
