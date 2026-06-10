@@ -1,6 +1,8 @@
 import { Fragment, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import API_URL from "../utils/api";
 import { getAuthState } from "../utils/auth";
 import { getAuthHeaders } from "../utils/authHeaders";
@@ -116,6 +118,78 @@ const MemberList = () => {
           "Failed to delete member"
       );
     }
+  };
+
+  const handleDownloadPdf = () => {
+    const activeMembers = members
+      .filter((member) => !member.isDeceased)
+      .sort(sortMembersByFlatNo);
+    const deceasedMembers = members
+      .filter((member) => member.isDeceased)
+      .sort(sortMembersByDeceasedDate);
+    const doc = new jsPDF({ orientation: "landscape" });
+
+    doc.setFontSize(16);
+    doc.text("BRC Siva Hills Senior Citizens", 14, 16);
+    doc.setFontSize(11);
+    doc.text("Members Bio", 14, 24);
+
+    const addMemberSection = (title, sectionMembers, startY, showDeceasedDate) => {
+      const head = [
+        showDeceasedDate
+          ? ["S.No", "Name", "Flat No", "Phone", "DOB", "Deceased Date"]
+          : ["S.No", "Name", "Flat No", "Phone", "DOB"]
+      ];
+      const body = sectionMembers.map((member, index) =>
+        showDeceasedDate
+          ? [
+              index + 1,
+              member.name || "-",
+              member.flatNo || "-",
+              member.phone || "-",
+              formatDate(member.dob) || "-",
+              formatDate(member.deceasedDate) || "-"
+            ]
+          : [
+              index + 1,
+              member.name || "-",
+              member.flatNo || "-",
+              member.phone || "-",
+              formatDate(member.dob) || "-"
+            ]
+      );
+
+      doc.setFontSize(13);
+      doc.text(title, 14, startY);
+
+      autoTable(doc, {
+        startY: startY + 4,
+        head,
+        body:
+          body.length > 0
+            ? body
+            : [
+                showDeceasedDate
+                  ? ["-", "No members found", "-", "-", "-", "-"]
+                  : ["-", "No members found", "-", "-", "-"]
+              ],
+        styles: { fontSize: 9 },
+        headStyles: { fillColor: [37, 99, 235] },
+        margin: { left: 14, right: 14 }
+      });
+
+      return doc.lastAutoTable.finalY + 12;
+    };
+
+    let nextY = addMemberSection("Active Members", activeMembers, 34, false);
+
+    if (nextY > 170) {
+      doc.addPage();
+      nextY = 18;
+    }
+
+    addMemberSection("Deceased Members", deceasedMembers, nextY, true);
+    doc.save("members-bio.pdf");
   };
 
   const renderMemberTable = (
@@ -265,14 +339,25 @@ const MemberList = () => {
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-2xl font-semibold text-gray-900">Members</h2>
 
-        {isAdmin && (
-          <Link
-            to="/members/add"
-            className="rounded-md bg-blue-600 px-4 py-2 text-center text-sm font-medium text-white hover:bg-blue-700"
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <button
+            type="button"
+            onClick={handleDownloadPdf}
+            disabled={loading}
+            className="rounded-md border border-blue-600 px-4 py-2 text-center text-sm font-medium text-blue-700 hover:bg-blue-50 disabled:cursor-not-allowed disabled:border-gray-300 disabled:text-gray-400"
           >
-            Add Member
-          </Link>
-        )}
+            Download as PDF
+          </button>
+
+          {isAdmin && (
+            <Link
+              to="/members/add"
+              className="rounded-md bg-blue-600 px-4 py-2 text-center text-sm font-medium text-white hover:bg-blue-700"
+            >
+              Add Member
+            </Link>
+          )}
+        </div>
       </div>
 
       <input
