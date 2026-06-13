@@ -368,15 +368,29 @@ const MemberList = () => {
         className="mb-4 w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
       />
 
-      {loading && <p className="mb-4 text-sm text-gray-600">Loading members...</p>}
-
-      {renderMemberTable("Active Members", activeMembers)}
-      {renderMemberTable(
-        "Deceased Members",
-        deceasedMembers,
-        true,
-        false,
-        sortMembersByDeceasedDate
+      {loading ? (
+        <div className="flex min-h-[360px] flex-col items-center justify-center gap-4 rounded-md border border-gray-200 bg-white px-6 py-12 text-center">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-100 border-t-blue-600" />
+          <div>
+            <p className="text-base font-semibold text-gray-900">
+              Loading member data
+            </p>
+            <p className="mt-1 text-sm text-gray-600">
+              Please wait while the backend wakes up and fetches the latest list.
+            </p>
+          </div>
+        </div>
+      ) : (
+        <>
+          {renderMemberTable("Active Members", activeMembers)}
+          {renderMemberTable(
+            "Deceased Members",
+            deceasedMembers,
+            true,
+            false,
+            sortMembersByDeceasedDate
+          )}
+        </>
       )}
     </div>
   );
