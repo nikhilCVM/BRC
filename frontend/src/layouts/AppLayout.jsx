@@ -20,11 +20,18 @@ const AppLayout = () => {
     <div className="min-h-screen bg-gray-50">
       <header className="border-b border-gray-200 bg-white">
         <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-xl font-semibold text-gray-900">
-              BRC Siva Hills Senior Citizens
-            </h1>
-            <p className="text-sm text-gray-500">Manage member records</p>
+          <div className="flex items-center gap-3">
+            <img
+              src="/brc-senior-citizens-logo.png"
+              alt="BRC Senior Citizens logo"
+              className="h-14 w-14 rounded-full border border-gray-200 bg-white object-cover shadow-sm"
+            />
+            <div>
+              <h1 className="text-xl font-semibold text-gray-900">
+                BRC Siva Hills Senior Citizens
+              </h1>
+              <p className="text-sm text-gray-500">Manage member records</p>
+            </div>
           </div>
 
           <nav className="flex gap-2">
