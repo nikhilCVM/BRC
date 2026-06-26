@@ -332,7 +332,7 @@ const MemberList = () => {
                                 onClick={() => handleShareEditLink(member._id)}
                                 className="font-medium text-purple-600 hover:text-purple-800"
                               >
-                                Share Edit Link
+                                Share 
                               </button>
                               <button
                                 type="button"
