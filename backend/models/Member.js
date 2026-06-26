@@ -128,6 +128,16 @@ const memberSchema = new mongoose.Schema(
     familyMembers: {
       type: [familyMemberSchema],
       default: []
+    },
+    editTokenHash: {
+      type: String,
+      select: false,
+      default: ""
+    },
+    editTokenExpiresAt: {
+      type: Date,
+      select: false,
+      default: null
     }
   },
   {

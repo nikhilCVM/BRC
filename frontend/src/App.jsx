@@ -6,6 +6,7 @@ import Dashboard from "./pages/Dashboard";
 import EditMemberPage from "./pages/EditMemberPage";
 import LoginPage from "./pages/LoginPage";
 import MemberDetailsPage from "./pages/MemberDetailsPage";
+import SharedEditMember from "./components/SharedEditMember";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/members" element={<Dashboard />} />
+          <Route path="/members/shared-edit/:token" element={<SharedEditMember />} />
           <Route path="/members/:id" element={<MemberDetailsPage />} />
           <Route element={<AdminRoute />}>
             <Route path="/members/add" element={<AddMemberPage />} />

@@ -1,4 +1,5 @@
 const express = require("express");
+const crypto = require("crypto");
 const multer = require("multer");
 const xlsx = require("xlsx");
 const Member = require("../models/Member");
@@ -7,6 +8,7 @@ const adminMiddleware = require("../middleware/adminMiddleware");
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
+const EDIT_LINK_EXPIRY_DAYS = 7;
 
 const parseBoolean = (value) => {
   if (typeof value === "boolean") {
@@ -85,6 +87,25 @@ const validateMemberData = (memberData) => {
   }
 
   return errors;
+};
+
+const hashToken = (token) =>
+  crypto.createHash("sha256").update(token).digest("hex");
+
+const getPublicEditMember = async (token) => {
+  const member = await Member.findOne({
+    editTokenHash: hashToken(token),
+    editTokenExpiresAt: { $gt: new Date() }
+  }).select("+editTokenHash +editTokenExpiresAt");
+
+  return member;
+};
+
+const toPublicMember = (member) => {
+  const publicMember = member.toObject();
+  delete publicMember.editTokenHash;
+  delete publicMember.editTokenExpiresAt;
+  return publicMember;
 };
 
 router.post("/", authMiddleware, adminMiddleware, async (req, res) => {
@@ -265,6 +286,90 @@ router.post(
   }
   }
 );
+
+router.post("/:id/share-edit", authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const member = await Member.findById(req.params.id).select(
+      "+editTokenHash +editTokenExpiresAt"
+    );
+
+    if (!member) {
+      return res.status(404).json({ message: "Member not found" });
+    }
+
+    const token = crypto.randomBytes(32).toString("hex");
+    const expiresAt = new Date(
+      Date.now() + EDIT_LINK_EXPIRY_DAYS * 24 * 60 * 60 * 1000
+    );
+    const clientOrigin = req.body.clientOrigin || "";
+    const editUrl = `${clientOrigin}/members/shared-edit/${token}`;
+
+    member.editTokenHash = hashToken(token);
+    member.editTokenExpiresAt = expiresAt;
+    await member.save();
+
+    res.status(200).json({
+      editUrl,
+      expiresAt
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to create edit link",
+      error: error.message
+    });
+  }
+});
+
+router.get("/shared-edit/:token", async (req, res) => {
+  try {
+    const member = await getPublicEditMember(req.params.token);
+
+    if (!member) {
+      return res.status(404).json({
+        message: "This edit link is invalid or expired"
+      });
+    }
+
+    res.status(200).json(toPublicMember(member));
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to fetch member",
+      error: error.message
+    });
+  }
+});
+
+router.put("/shared-edit/:token", async (req, res) => {
+  try {
+    const member = await getPublicEditMember(req.params.token);
+
+    if (!member) {
+      return res.status(404).json({
+        message: "This edit link is invalid or expired"
+      });
+    }
+
+    const memberData = normalizeMemberData(req.body);
+    const errors = validateMemberData(memberData);
+
+    if (errors.length > 0) {
+      return res.status(400).json({
+        message: "Failed to update member",
+        error: errors.join(", ")
+      });
+    }
+
+    Object.assign(member, memberData);
+    await member.save();
+
+    res.status(200).json(toPublicMember(member));
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to update member",
+      error: error.message
+    });
+  }
+});
 
 router.get("/:id", async (req, res) => {
   try {

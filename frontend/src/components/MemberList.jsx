@@ -120,6 +120,39 @@ const MemberList = () => {
     }
   };
 
+  const copyText = async (text) => {
+    if (navigator.clipboard) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+
+    return false;
+  };
+
+  const handleShareEditLink = async (memberId) => {
+    try {
+      const response = await axios.post(
+        `${API_URL}/api/members/${memberId}/share-edit`,
+        { clientOrigin: window.location.origin },
+        { headers: getAuthHeaders() }
+      );
+      const { editUrl } = response.data;
+      const copied = await copyText(editUrl);
+
+      if (copied) {
+        window.alert("Edit link copied. You can share it with this member.");
+      } else {
+        window.prompt("Copy this edit link:", editUrl);
+      }
+    } catch (err) {
+      setError(
+        err.response?.data?.error ||
+          err.response?.data?.message ||
+          "Failed to create edit link"
+      );
+    }
+  };
+
   const handleDownloadPdf = () => {
     const activeMembers = members
       .filter((member) => !member.isDeceased)
@@ -294,6 +327,13 @@ const MemberList = () => {
                               >
                                 Edit
                               </Link>
+                              <button
+                                type="button"
+                                onClick={() => handleShareEditLink(member._id)}
+                                className="font-medium text-purple-600 hover:text-purple-800"
+                              >
+                                Share Edit Link
+                              </button>
                               <button
                                 type="button"
                                 onClick={() => handleDelete(member._id)}
