@@ -92,6 +92,11 @@ const MemberDetails = () => {
         </div>
 
         <div>
+          <p className="text-sm font-medium text-gray-500">Joined BRC Year</p>
+          <p className="text-gray-900">{showValue(member.joinedBrcYear)}</p>
+        </div>
+
+        <div>
           <p className="text-sm font-medium text-gray-500">Marriage Date</p>
           <p className="text-gray-900">{formatDate(member.marriageDate)}</p>
         </div>

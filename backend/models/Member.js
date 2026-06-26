@@ -71,6 +71,11 @@ const memberSchema = new mongoose.Schema(
       trim: true,
       default: ""
     },
+    joinedBrcYear: {
+      type: String,
+      trim: true,
+      default: ""
+    },
     emergencyContactPerson: {
       type: String,
       trim: true,

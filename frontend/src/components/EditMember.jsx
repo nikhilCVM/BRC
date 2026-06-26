@@ -24,6 +24,7 @@ const getInitialFormData = () => ({
   phone: "",
   dob: "",
   bloodGroup: "",
+  joinedBrcYear: "",
   address: "",
   marriageDate: "",
   spouseName: "",
@@ -60,6 +61,7 @@ const EditMember = () => {
           phone: member.phone || "",
           dob: formatDateInput(member.dob),
           bloodGroup: member.bloodGroup || "",
+          joinedBrcYear: member.joinedBrcYear || "",
           address: member.address || "",
           marriageDate: formatDateInput(member.marriageDate),
           spouseName: member.spouseName || "",
@@ -205,6 +207,18 @@ const EditMember = () => {
           value={formData.bloodGroup}
           onChange={handleChange}
           placeholder="Blood Group"
+          className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+        />
+
+        <input
+          type="number"
+          name="joinedBrcYear"
+          value={formData.joinedBrcYear}
+          onChange={handleChange}
+          placeholder="Joined BRC Year"
+          min="1900"
+          max="2100"
+          step="1"
           className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
         />
 

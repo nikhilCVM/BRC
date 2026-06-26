@@ -56,6 +56,7 @@ const normalizeMemberData = (data) => {
     phone: data.phone || "",
     dob: normalizeDate(data.dob),
     bloodGroup: data.bloodGroup || "",
+    joinedBrcYear: data.joinedBrcYear || "",
     address: data.address || "",
     marriageDate: normalizeDate(data.marriageDate),
     spouseName: data.spouseName || "",
@@ -209,6 +210,13 @@ router.post(
         ]),
         emergencyPhone: getRowValue(row, ["emergencyPhone", "EmergencyPhone", "Emergency Phone"]),
         bloodGroup: getRowValue(row, ["bloodGroup", "BloodGroup", "Blood Group", "Blood group"]),
+        joinedBrcYear: getRowValue(row, [
+          "joinedBrcYear",
+          "JoinedBrcYear",
+          "Joined BRC Year",
+          "Joined Brc Year",
+          "BRC Joined Year"
+        ]),
         occupationDetails: getRowValue(row, [
           "occupationDetails",
           "OccupationDetails",
